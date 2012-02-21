@@ -27,40 +27,42 @@ int
 main (int argc, char *argv[])
 {
 
-    int iRet = 0;
+  int iRet = 0;
   unsigned char key[0x20];
 
   // check wether we have all parmeters
-  if (argc < 3) {
-      printf("Usage: %s crypted_file wordlist\n",argv[0]);
+  if (argc < 3)
+    {
+      printf ("Usage: %s crypted_file wordlist\n", argv[0]);
       goto exitProgram;
-  }
+    }
 
 
   // we open the file
   FILE *fh = fopen (FILENAME, "r");
-  if (!fh) {
-      printf("Crypted file not found. Terminating.\n");
+  if (!fh)
+    {
+      printf ("Crypted file not found. Terminating.\n");
       iRet = -1;
       goto exitProgram;
-  }
+    }
   fseek (fh, 4, SEEK_CUR);	// jump over first 4 bytes
 
   /* i did not reverse this enough, sometimes it's there, sometimes not
 
-  int32_t hintlength = 0;
-  fread (&hintlength, sizeof (int32_t), 1, fh);
-  printf ("Hint is %d (%#x) long - jumping over it\n", hintlength, hintlength);
-  fseek (fh, hintlength, SEEK_CUR);
-  */
-  
+     int32_t hintlength = 0;
+     fread (&hintlength, sizeof (int32_t), 1, fh);
+     printf ("Hint is %d (%#x) long - jumping over it\n", hintlength, hintlength);
+     fseek (fh, hintlength, SEEK_CUR);
+   */
+
   int32_t origfilenamelength = 0;
   fread (&origfilenamelength, sizeof (int32_t), 1, fh);
   printf ("Original filename is %d (%#x)long - jumping over it\n",
 	  origfilenamelength, origfilenamelength);
   fseek (fh, origfilenamelength + sizeof (int32_t), SEEK_CUR);
   int32_t challengel = 0x14;	// length of sha1 hash
-  
+
   // i previously thought this was the challenge length, but i was wrong
   // fread (&challengel, sizeof (int32_t), 1, fh);
 
@@ -102,13 +104,13 @@ main (int argc, char *argv[])
       char number[3];
       uint32_t numberl = passl + 2;
       int j = 0;
-      for (j=0; j <= 100; j++)
+      for (j = 0; j <= 100; j++)
 	{
 	  if (0 == j)
 	    {
 	      strncpy (tmpass, pass, 100);
 	      makekey (key, tmpass, passl);
-              j += 120; 
+	      j += 120;
 	    }
 	  else
 	    {
@@ -123,7 +125,7 @@ main (int argc, char *argv[])
 	  if (0 == tryKey (key, crypted, &cryptedl, challenge))
 	    {
 	      printf ("found pass! its: %s\n", tmpass);
-              return 0;
+	      return 0;
 	    }
 	  if (!(i % 10000))
 	    {
@@ -151,7 +153,7 @@ makekey (unsigned char *key, const unsigned char *pass, int32_t length)
   int keyl = 0x18;
 
 #ifdef DEBUG
-  printf("%s\n",pass);
+  printf ("%s\n", pass);
 #endif
 
   // initialize SSL
