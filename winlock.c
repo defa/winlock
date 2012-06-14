@@ -39,10 +39,10 @@ main (int argc, char *argv[])
 
 
   // we open the file
-  FILE *fh = fopen (FILENAME, "r");
+  FILE *fh = fopen (argv[1], "r");
   if (!fh)
     {
-      printf ("Crypted file not found. Terminating.\n");
+      printf ("Crypted file %s not found. Terminating.\n", argv[1]);
       iRet = -1;
       goto exitProgram;
     }
@@ -68,14 +68,14 @@ main (int argc, char *argv[])
 
   fseek (fh, sizeof (int32_t), SEEK_CUR);
   printf ("Challenge is %d long - reading it\n", challengel);
-  unsigned char *challenge[100];
+  unsigned char challenge[100];
   memset (challenge, 0, 100);
   fread (challenge, 1, challengel, fh);
 
   printf ("challenge:\n");
   hexdump (challenge, challengel);
 
-  unsigned char *crypted[100];
+  unsigned char crypted[100];
   int32_t cryptedl = 0x18;
 
   memset (crypted, 0, 100);
@@ -85,15 +85,16 @@ main (int argc, char *argv[])
 
   fclose (fh);
   FILE *wlh;
-  wlh = fopen (argv[1], "r");
+  wlh = fopen (argv[2], "r");
+  printf("Trying to open wordlist %s\n", argv[2]);
   if (NULL == wlh)
     {
       printf ("No wordlist given. Usage: %s <wordlist>\n", argv[0]);
       iRet = -2;
       goto exitProgram;
     }
-  unsigned char pass[100];
-  unsigned char tmpass[100];
+  unsigned char* pass = malloc(100);
+  unsigned char* tmpass = malloc(100);
   uint32_t i = 0;
 
   while (fgets (pass, 100, wlh))
@@ -127,10 +128,10 @@ main (int argc, char *argv[])
 	      printf ("found pass! its: %s\n", tmpass);
 	      return 0;
 	    }
-	  if (!(i % 10000))
-	    {
+	  // if (!(i % 10000))
+	  //  {
 	      printf ("%d passwords tested. current try: %s\n", i, tmpass);
-	    }
+	  //  }
 	  i++;
 	}
     }
